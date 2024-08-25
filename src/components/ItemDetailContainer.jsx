@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { getFirestore, getDoc, doc } from "firebase/firestore";
+
+import { ItemsContext } from '../contexts/ItemsContext';
+import { ItemCount } from './ItemCount';
 
 import Container from 'react-bootstrap/Container';
 import Spinner from 'react-bootstrap/Spinner';
 import Card from 'react-bootstrap/Card';
-import data from '../data/products.json';
 
 
 export const ItemDetailContainer = () => {
@@ -13,15 +16,22 @@ export const ItemDetailContainer = () => {
 
     const { id } = useParams();
 
+    const { addItem } = useContext(ItemsContext);
+
+    const onAdd = (count) => {
+        addItem({ ...prod, quantity: count })
+    };
+
     useEffect(() => {
-        new Promise((resolve, reject) => {
-            setTimeout(() => resolve(data), 2000);
-        })
-            .then((response) => {
-                const findProd = response.find(prod => prod.id === Number(id));
-                setProd(findProd);
+        const db = getFirestore();
+
+        const refDoc = doc(db, "products", id);
+
+        getDoc(refDoc)
+            .then((snapshot) => {
+                setProd({ fireId: snapshot.id, ...snapshot.data() });
             })
-            .finally(() => setLoading(false))
+            .finally(() => setLoading(false));
     }, [id]);
 
     if (loading) return (
@@ -30,11 +40,12 @@ export const ItemDetailContainer = () => {
         </Container>
     )
 
-    if (!prod) return (
+    if (!prod.name) return (
         <Container className='mt-4'>
-            <h2>El producto no existe!</h2>
+            <h1>El producto no existe!</h1>
         </Container>
     )
+
 
     return (
     <Container className='mt-4 mb-4'>
@@ -48,7 +59,9 @@ export const ItemDetailContainer = () => {
                 <Card.Text className='mb-1'>Género: {prod.category}</Card.Text>
                 <Card.Text className='mb-1'>c/Páginas: {prod.pages}</Card.Text>
                 <Card.Text className='mb-1'>Autor: {prod.autor}</Card.Text>
-                <Card.Text className='mb-0'>${prod.price}</Card.Text>
+                <Card.Text className='mb-2'>${prod.price}</Card.Text>
+                <Card.Text className='mb-0'>Cantidad a comprar:</Card.Text>
+                <ItemCount onAdd={onAdd}/>
             </Card.Footer>
         </Card>
     </Container>

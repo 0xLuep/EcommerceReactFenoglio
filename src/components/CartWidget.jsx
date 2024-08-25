@@ -1,7 +1,17 @@
+import { useContext } from "react"
+import { Link } from "react-router-dom"
+import { ItemsContext } from "../contexts/ItemsContext"
+
 export const CartWidget = () => {
-    return <>
-        <div className="carr-img-cont">
-            <i class="bi bi-cart2"></i>7
+
+    const { quantCart } = useContext(ItemsContext)
+
+
+    return (
+    <Link to="/cart">
+        <div className="carr-img-cont text-white d-flex align-items-center">
+            <i className="bi bi-cart2"></i>{quantCart()}
         </div>
-    </>
+    </Link>
+    )
 }

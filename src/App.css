@@ -6,6 +6,15 @@
   box-sizing: border-box;
 }
 
+body {
+  background-color: black;
+}
+
+body h1 {
+  color: ghostwhite;
+}
+
 .carr-img-cont i {
   font-size: 20px;
 }
+
